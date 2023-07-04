@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Webstaurant Parser</title>
+    <style>
+        body {
+            background-color: #D2D5DD;
+        }
+        
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            border: 1px solid #D2D5DD; /* Set border color */
+        }
+        
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #D2D5DD;
+        }
+        
+        .in-stock {
+            background-color: #B6CB9D; /* Set background color for "In" */
+        }
+        
+        .out-of-stock {
+            background-color: #CFB8B8; /* Set background color for "Out" */
+        }
+        
+        form {
+            margin-bottom: 10px;
+        }
+        
+        button {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Webstaurant Parser</h1>
+    
+    <form action="/addNewItem" method="POST">
+        <input type="text" name="sku" placeholder="SKU..." required>
+        <input type="text" name="url" placeholder="Enter URL" required>
+        <button type="submit">Add New Item</button>
+    </form>
+
+    <form onsubmit="parseAllURLs(event)">
+        <button type="submit">Parse All URLs</button>
+    </form>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>_id</th>
+                <th>SKU</th>
+                <th>Link</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        
+        <tbody>
+            {% for url in urls %}
+            <tr class="{% if url.Stock == 'In' %}in-stock{% elif url.Stock == 'Out' %}out-of-stock{% endif %}">
+                <td>{{ url._id }}</td>
+                <td>{{ url.SKU }}</td>
+                <td>{{ url.Link }}</td>
+                <td>{{ url.Price }}</td>
+                <td>{{ url.Stock }}</td>
+                <td>
+                    <button onclick="deleteURL(event, '{{ url._id }}')">Delete</button>
+                    <button onclick="parseURL(event, '{{ url._id }}')">Parse</button>
+                    
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        function deleteURL(event, urlId) {
+            event.preventDefault(); // Prevent form submission
+    
+            fetch('/delete', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url_id: urlId })
+            })
+            .then(function(response) {
+                if (response.ok) {
+                    // Remove the deleted row from the table
+                    var row = event.target.closest('tr');
+                    row.parentNode.removeChild(row);
+                }
+            })
+            .catch(function(error) {
+                console.error('Error:', error);
+            });
+        }
+
+        function parseURL(event, urlId) {
+        event.preventDefault(); // Prevent form submission
+
+        // Make a fetch request to the '/parse_one' route with the urlId
+        fetch('/parse_one', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url_id: urlId })
+        })
+        .then(function(response) {
+            if (response.ok) {
+                // Handle the response if needed
+                console.log('URL parsed successfully.');
+                window.location.reload();
+            } else {
+                // Handle the error response if needed
+                console.error('Failed to parse URL.');
+            }
+        })
+        .catch(function(error) {
+            // Handle any other errors
+            console.error('Error:', error);
+        });
+    }
+
+    function parseAllURLs(event) {
+    event.preventDefault(); // Prevent form submission
+
+    // Make a fetch request to the '/parse' route
+    fetch('/parse', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(function(response) {
+        if (response.ok) {
+            // Handle the response if needed
+            return response.json();
+        } else {
+            // Handle the error response if needed
+            console.error('Failed to parse URLs.');
+            throw new Error('Failed to parse URLs.');
+        }
+    })
+    .then(function(data) {
+        // Show the success message in a dialog window
+        alert(data.message);
+
+        // Reload the current page
+        location.reload();
+    })
+    .catch(function(error) {
+        // Handle any other errors
+        console.error('Error:', error);
+    });
+    }
+    
+    </script>
+</body>
+</html>
+
+
+
