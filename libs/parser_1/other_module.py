@@ -18,7 +18,7 @@ nonstock_url = "https://www.webstaurantstore.com/regency-black-epoxy-5-shelf-ang
 
 driver = webdriver.Chrome(options=options)
 
-driver = webdriver.Chrome(options=options, executable_path="chromedriver_linux64\chromedriver")
+# driver = webdriver.Chrome(options=options, executable_path="chromedriver_linux64\chromedriver")
 
 
 def format_price(string):                           # delets $ and /Each from parced price
