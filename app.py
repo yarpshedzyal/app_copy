@@ -7,6 +7,7 @@ from libs.parser_1.other_module import parser_solo
 # import libraryparse
 
 app = Flask(__name__)
+
 client = MongoClient('mongodb://localhost:27017/')
 db = client['test']
 collection = db['testdate_2023-06-05']
