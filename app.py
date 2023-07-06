@@ -7,9 +7,9 @@ from libs.parser_1.other_module import parser_solo
 # import libraryparse
 
 app = Flask(__name__)
-client = MongoClient('mongodb://localhost:27017/')
-db = client['test']
-collection = db['testdate_2023-06-05']
+client = MongoClient('mongodb+srv://user_yarpshe:Q1w2e3r4_0@cluster0.aktya2j.mongodb.net/')
+db = client['test_1506']
+collection = db['test']
 
 @app.route('/')
 def index():
@@ -48,9 +48,9 @@ def parse_one():
     url_id = request.json.get('url_id')
     
     # Retrieve the URL from MongoDB based on the ID
-    client = MongoClient('mongodb://localhost:27017')
-    db = client['test']
-    collection = db['testdate_2023-06-05']
+    client = MongoClient('mongodb+srv://user_yarpshe:Q1w2e3r4_0@cluster0.aktya2j.mongodb.net/')
+    db = client['test_1506']
+    collection = db['test']
     
     # Find the document with the given ID
     document = collection.find_one({'_id': ObjectId(url_id)})
