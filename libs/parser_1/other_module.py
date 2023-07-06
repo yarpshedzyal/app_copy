@@ -6,17 +6,32 @@ import json
 from pymongo import MongoClient
 import datetime 
 
-options = Options()
-options.headless = True
-options.add_argument("--window-size=1920,1200")
+
+# new options
+chrome_options = Options()
+chrome_options.add_argument('--no-sandbox')
+chrome_options.add_argument('--headless')
+chrome_options.add_argument("--disable-setuid-sandbox")
+# other options
+chrome_options.add_argument("--disable-extensions")
+chrome_options.add_argument("--disable-gpu")
+chrome_options.add_argument('--ignore-certificate-errors')
+# chrome_options.headless = True
 
 
-url = "https://www.webstaurantstore.com/lancaster-table-seating-french-bistro-black-outdoor-arm-chair/427CAFRBSBLK.html" # multi
-url_1 = "https://www.webstaurantstore.com/spaceman-6235a-c-soft-serve-countertop-ice-cream-machine-with-air-pump-2-hoppers-and-3-dispensers-208-230v/7156235ACV.html" # solo 
-nonstock_url = "https://www.webstaurantstore.com/regency-black-epoxy-5-shelf-angled-stationary-merchandising-rack-18-x-48-x-74/460EB1848SDS.html" # nonstock 
+# options = Options()
+# options.add_argument("--headless")
+# # options.headless = True
+# # options.add_argument("--window-size=1920,1200")
+# # options.binary_location = 
+
+# urls for test
+# url = "https://www.webstaurantstore.com/lancaster-table-seating-french-bistro-black-outdoor-arm-chair/427CAFRBSBLK.html" # multi
+# url_1 = "https://www.webstaurantstore.com/spaceman-6235a-c-soft-serve-countertop-ice-cream-machine-with-air-pump-2-hoppers-and-3-dispensers-208-230v/7156235ACV.html" # solo 
+# nonstock_url = "https://www.webstaurantstore.com/regency-black-epoxy-5-shelf-angled-stationary-merchandising-rack-18-x-48-x-74/460EB1848SDS.html" # nonstock 
 
 
-driver = webdriver.Chrome(options=options)
+driver = webdriver.Chrome(options=chrome_options)
 
 # driver = webdriver.Chrome(options=options, executable_path="chromedriver_linux64\chromedriver")
 
