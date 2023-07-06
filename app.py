@@ -8,9 +8,12 @@ from libs.parser_1.other_module import parser_solo
 
 app = Flask(__name__)
 
+
 client = MongoClient('mongodb+srv://user_yarpshe:Q1w2e3r4_0@cluster0.aktya2j.mongodb.net/')
 db = client['test_1506']
 collection = db['test']
+
+huy = 'pizdec'
 
 @app.route('/')
 def index():
