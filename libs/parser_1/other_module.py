@@ -79,4 +79,13 @@ def parser_solo(url):
 def parse_all():
     print('incoming')
 
+def count():
+    client = MongoClient('mongodb+srv://user_yarpshe:Q1w2e3r4_0@cluster0.aktya2j.mongodb.net/')
+    db = client['test_1506']
+    collection = db['test']
+    count = collection.count_documents({})
+    return count
+
+
+
 
