@@ -40,6 +40,7 @@ def format_price(string):                           # delets $ and /Each from pa
     formated_string = str(string)
     formated_string = formated_string.replace("$", "")
     formated_string = formated_string.replace("/Each", "")
+    formated_string = formated_string.replace("/Case", "")
     return formated_string
 
 def parser_solo(url):
