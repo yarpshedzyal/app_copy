@@ -40,6 +40,24 @@ def delete_url():
     collection.delete_one({'_id': ObjectId(url_id)})
     return jsonify({'message': 'URL deleted successfully'})
 
+@app.route('/parse_search', methods=['POST'])
+def parse_search():
+    # Get the search keyword from the form
+    keyword = request.form.get('keyword')
+
+    # Search for URLs in the MongoDB collection based on the keyword
+    # (You'll need to implement the logic to perform the search based on the 'keyword')
+    # For example:
+    urls = collection.find({"SKU": {"$regex": keyword, "$options": "i"}})
+
+    # Pagination: Calculate total pages
+    items_per_page = 50
+    total_urls = count()  # Count the total number of URLs
+    total_pages = (total_urls + items_per_page - 1) // items_per_page
+
+    return render_template('index.html', urls=urls, current_page=1, total_pages=total_pages)  # Pass total_pages
+
+
 @app.route('/addNewItem', methods=['POST'])
 def add_new_item():
     sku = request.form.get('sku')

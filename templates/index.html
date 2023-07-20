@@ -40,11 +40,19 @@
             margin-right: 5px;
         }
     </style>
+
+    <div id="dialog-box" style="display: none;"></div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
 </head>
 
 <body>
     <h1>Webstaurant Parser</h1>
+
+    <form action="{{ url_for('parse_search') }}" method="post">
+        <input type="text" name="keyword" placeholder="Search by SKU">
+        <button type="submit">Search</button>
+    </form>
 
     <form action="/addNewItem" method="POST">
         <input type="text" name="sku" placeholder="SKU..." required>
@@ -131,6 +139,38 @@
             console.log(data)
         });
 
+    </script>
+
+    <script>
+        // Event listener for search form submission for SKU
+        document.getElementById('search-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const searchInput = document.getElementById('search-input').value;
+
+            // Make an AJAX request to the server to search for URLs by SKU
+            fetch('/search_sku', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `search_input=${encodeURIComponent(searchInput)}`
+            })
+                .then(response => response.text())
+                .then(html => {
+                    // Replace the current URLs table with the updated table from the server response
+                    const table = document.querySelector('tbody');
+                    table.innerHTML = html;
+
+                    // Re-attach event listeners to the newly added buttons (Parse and Delete)
+                    addEventListenersToButtons();
+                })
+                .catch(error => {
+                    console.error('Error searching for URLs:', error);
+                });
+        });
+
+    // Rest of the JavaScript code...
     </script>
 
     <script type="text/javascript">
