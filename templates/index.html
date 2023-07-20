@@ -35,7 +35,9 @@
             margin-right: 5px;
         }
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
 </head>
+
 <body>
     <h1>Webstaurant Parser</h1>
     
@@ -78,6 +80,35 @@
             {% endfor %}
         </tbody>
     </table>
+
+
+    <script>
+        // Create a Socket.IO instance and connect to the server
+        const socket = io('http://127.0.0.1:5000/');
+      
+        // Event listener for when the connection is established
+        socket.on('connect', () => {
+          console.log('Connected to the server!');
+        });
+
+        socket.on('YarikTest', (data) => {
+            console.log(data)
+        });
+
+ 
+      
+        // Event listener for custom events from the server
+        socket.on('response_event', (data) => {
+          console.log('Received response from server:', data);
+          // Do something with the data received from the server
+        });
+      
+        // Example of sending data to the server
+        function sendDataToServer() {
+          const dataToSend = { message: 'Hello, server!' };
+          socket.emit('my_custom_event', dataToSend);
+        }
+      </script>
 
     <script>
         function deleteURL(event, urlId) {

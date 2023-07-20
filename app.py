@@ -1,13 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask_socketio import SocketIO, emit
 from pymongo import MongoClient, UpdateOne
 from bson.objectid import ObjectId
-from flask import jsonify
 from libs.parser_1.other_module import parser_solo
 import os
 # import pymongo
 # import libraryparse
-
 app = Flask(__name__)
+socketio = SocketIO(app)
+ 
 
 client = MongoClient('mongodb+srv://user_yarpshe:Q1w2e3r4_0@cluster0.aktya2j.mongodb.net/')
 db = client['test_1506']
@@ -99,8 +100,19 @@ def parse_urls():
     # Return a JSON response with a success message
     return jsonify({'message': 'All URLs parsed successfully.'})
 
+@socketio.on('connect')
+def handle_connect():
+    print('A user connected')
+    # Additional actions when a user connects (e.g., sending initial data to the client)
+    emit("YarikTest","Test Hello Yarik")
+@socketio.on('my_custom_event')
+def handle_custom_event(data):
+    # Process the data received from the client
+    # Send a response back to the client
+    emit('response_event', {'message': 'Data received successfully'})
 
 
+ 
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    socketio.run(app, debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
