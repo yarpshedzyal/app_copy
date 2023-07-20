@@ -2,8 +2,10 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_socketio import SocketIO, emit
 from pymongo import MongoClient, UpdateOne
 from bson.objectid import ObjectId
-from libs.parser_1.other_module import parser_solo
+from libs.parser_1.other_module import parser_solo,count
 import os
+import traceback
+import time
 # import pymongo
 # import libraryparse
 app = Flask(__name__)
@@ -80,25 +82,42 @@ def parse_one():
     
 @app.route('/parse', methods=['POST'])
 def parse_urls():
-    # Get all the URLs from MongoDB
-    urls = collection.find()
+    try:
+        # Get all the URLs from MongoDB
+        urls = collection.find()
 
-    # Iterate over each URL and perform parsing using Selenium
-    for url in urls:
-        url_id = str(url['_id'])
-        link = url['Link']
+        # Calculate the total number of URLs to parse
+        total_urls = count()
 
-        # Perform parsing using the parser_solo function
-        parsed_data = parser_solo(link)
+        # Start parsing and emit progress updates
+        progress = 0
+        for index, url in enumerate(urls):
+            url_id = str(url['_id'])
+            link = url['Link']
+            parsed_urls = 0
 
-        # Update the document in MongoDB with the parsed data
-        collection.update_one(
-            {'_id': ObjectId(url_id)},
-            {'$set': {'Price': parsed_data[0], 'Stock': parsed_data[1]}}
-        )
+            # Perform parsing using the parser_solo function
+            parsed_data = parser_solo(link)
 
-    # Return a JSON response with a success message
-    return jsonify({'message': 'All URLs parsed successfully.'})
+            # Update the document in MongoDB with the parsed data
+            collection.update_one(
+                {'_id': ObjectId(url_id)},
+                {'$set': {'Price': parsed_data[0], 'Stock': parsed_data[1]}}
+            )
+
+            # Calculate progress and emit progress update
+            parsed_urls += 1
+            progress = int((index + 1) / total_urls * 100)
+            socketio.emit('progress_update', {'progress': progress}, namespace='/')
+            socketio.sleep(0.5)
+
+        # Return a JSON response with a success message
+        return jsonify({'message': 'All URLs parsed successfully.'})
+
+    except Exception as e:
+        traceback.print_exc()  # Add this line to print the exception traceback
+        return jsonify({'message': 'Failed to parse URLs.'}), 500
+
 
 @socketio.on('connect')
 def handle_connect():
@@ -112,7 +131,7 @@ def handle_custom_event(data):
     emit('response_event', {'message': 'Data received successfully'})
 
 
- 
-
 if __name__ == '__main__':
     socketio.run(app, debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    
+    

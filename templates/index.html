@@ -1,36 +1,41 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Webstaurant Parser</title>
     <style>
         body {
             background-color: #D2D5DD;
         }
-        
+
         table {
             border-collapse: collapse;
             width: 100%;
-            border: 1px solid #D2D5DD; /* Set border color */
+            border: 1px solid #D2D5DD;
+            /* Set border color */
         }
-        
-        th, td {
+
+        th,
+        td {
             padding: 8px;
             text-align: left;
             border-bottom: 1px solid #D2D5DD;
         }
-        
+
         .in-stock {
-            background-color: #B6CB9D; /* Set background color for "In" */
+            background-color: #B6CB9D;
+            /* Set background color for "In" */
         }
-        
+
         .out-of-stock {
-            background-color: #CFB8B8; /* Set background color for "Out" */
+            background-color: #CFB8B8;
+            /* Set background color for "Out" */
         }
-        
+
         form {
             margin-bottom: 10px;
         }
-        
+
         button {
             margin-right: 5px;
         }
@@ -40,7 +45,7 @@
 
 <body>
     <h1>Webstaurant Parser</h1>
-    
+
     <form action="/addNewItem" method="POST">
         <input type="text" name="sku" placeholder="SKU..." required>
         <input type="text" name="url" placeholder="Enter URL" required>
@@ -48,9 +53,14 @@
     </form>
 
     <form onsubmit="parseAllURLs(event)">
-        <button type="submit">Parse All URLs</button>
+        <button id="parseAllButton" type="submit">Parse All URLs</button>
     </form>
-    
+
+    <div class="progress">
+        <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0"
+            aria-valuemax="100">0%</div>
+    </div>
+
     <table>
         <thead>
             <tr>
@@ -62,7 +72,7 @@
                 <th>Actions</th>
             </tr>
         </thead>
-        
+
         <tbody>
             {% for url in urls %}
             <tr class="{% if url.Stock == 'In' %}in-stock{% elif url.Stock == 'Out' %}out-of-stock{% endif %}">
@@ -74,7 +84,7 @@
                 <td>
                     <button onclick="deleteURL(event, '{{ url._id }}')">Delete</button>
                     <button onclick="parseURL(event, '{{ url._id }}')">Parse</button>
-                    
+
                 </td>
             </tr>
             {% endfor %}
@@ -83,37 +93,36 @@
 
 
     <script>
-        // Create a Socket.IO instance and connect to the server
-        const socket = io('http://127.0.0.1:5000/');
-      
-        // Event listener for when the connection is established
+        const socket = io.connect("http://" + document.domain + ":" + location.port);
+
+        let btn = document.getElementById("parseAllButton")
+        btn.addEventListener("click", function () {
+            socket.emit("parse_all");
+        });
+
+        // Listen for progress updates from the server
+        socket.on("progress_update", function (data) {
+            console.log(data)
+            const progressBar = document.querySelector(".progress-bar");
+            progressBar.style.width = data.progress + "%";
+            progressBar.textContent = data.progress + "%";
+        });
+
         socket.on('connect', () => {
-          console.log('Connected to the server!');
+            console.log('Connected to the server!');
+
         });
 
         socket.on('YarikTest', (data) => {
             console.log(data)
         });
-
- 
-      
-        // Event listener for custom events from the server
-        socket.on('response_event', (data) => {
-          console.log('Received response from server:', data);
-          // Do something with the data received from the server
-        });
-      
-        // Example of sending data to the server
-        function sendDataToServer() {
-          const dataToSend = { message: 'Hello, server!' };
-          socket.emit('my_custom_event', dataToSend);
-        }
-      </script>
+        
+    </script>
 
     <script>
         function deleteURL(event, urlId) {
             event.preventDefault(); // Prevent form submission
-    
+
             fetch('/delete', {
                 method: 'POST',
                 headers: {
@@ -121,81 +130,79 @@
                 },
                 body: JSON.stringify({ url_id: urlId })
             })
-            .then(function(response) {
-                if (response.ok) {
-                    // Remove the deleted row from the table
-                    var row = event.target.closest('tr');
-                    row.parentNode.removeChild(row);
-                }
-            })
-            .catch(function(error) {
-                console.error('Error:', error);
-            });
+                .then(function (response) {
+                    if (response.ok) {
+                        // Remove the deleted row from the table
+                        var row = event.target.closest('tr');
+                        row.parentNode.removeChild(row);
+                    }
+                })
+                .catch(function (error) {
+                    console.error('Error:', error);
+                });
         }
 
         function parseURL(event, urlId) {
-        event.preventDefault(); // Prevent form submission
+            event.preventDefault(); // Prevent form submission
 
-        // Make a fetch request to the '/parse_one' route with the urlId
-        fetch('/parse_one', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ url_id: urlId })
-        })
-        .then(function(response) {
-            if (response.ok) {
-                // Handle the response if needed
-                console.log('URL parsed successfully.');
-                window.location.reload();
-            } else {
-                // Handle the error response if needed
-                console.error('Failed to parse URL.');
-            }
-        })
-        .catch(function(error) {
-            // Handle any other errors
-            console.error('Error:', error);
-        });
-    }
-
-    function parseAllURLs(event) {
-    event.preventDefault(); // Prevent form submission
-
-    // Make a fetch request to the '/parse' route
-    fetch('/parse', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
+            // Make a fetch request to the '/parse_one' route with the urlId
+            fetch('/parse_one', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url_id: urlId })
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        // Handle the response if needed
+                        console.log('URL parsed successfully.');
+                        window.location.reload();
+                    } else {
+                        // Handle the error response if needed
+                        console.error('Failed to parse URL.');
+                    }
+                })
+                .catch(function (error) {
+                    // Handle any other errors
+                    console.error('Error:', error);
+                });
         }
-    })
-    .then(function(response) {
-        if (response.ok) {
-            // Handle the response if needed
-            return response.json();
-        } else {
-            // Handle the error response if needed
-            console.error('Failed to parse URLs.');
-            throw new Error('Failed to parse URLs.');
-        }
-    })
-    .then(function(data) {
-        // Show the success message in a dialog window
-        alert(data.message);
 
-        // Reload the current page
-        location.reload();
-    })
-    .catch(function(error) {
-        // Handle any other errors
-        console.error('Error:', error);
-    });
-    }
-    
+        function parseAllURLs(event) {
+            event.preventDefault(); // Prevent form submission
+
+            // Make a fetch request to the '/parse' route
+            fetch('/parse', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        // Handle the response if needed
+                        return response.json();
+                    } else {
+                        // Handle the error response if needed
+                        console.error('Failed to parse URLs.');
+                        throw new Error('Failed to parse URLs.');
+                    }
+                })
+                .then(function (data) {
+                    // Show the success message in a dialog window
+                    alert(data.message);
+
+                    // Reload the current page
+                    location.reload();
+                })
+                .catch(function (error) {
+                    // Handle any other errors
+                    console.error('Error:', error);
+                });
+        }
+
     </script>
 </body>
+
 </html>
-
-
-
