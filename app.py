@@ -6,6 +6,9 @@ from libs.parser_1.other_module import parser_solo,count
 import os
 import traceback
 import time
+import pandas as pd
+from math import ceil
+
 # import pymongo
 # import libraryparse
 app = Flask(__name__)
@@ -16,10 +19,20 @@ client = MongoClient('mongodb+srv://user_yarpshe:Q1w2e3r4_0@cluster0.aktya2j.mon
 db = client['test_1506']
 collection = db['test']
 
-@app.route('/')
-def index():
-    urls = collection.find({}, {"_id": 1, "SKU": 1, "Link": 1, "Price": 1, "Stock": 1})
-    return render_template('index.html', urls=urls)
+@app.route('/', defaults={'page_num': 1})
+@app.route('/page/<int:page_num>', methods=['GET'])
+def index(page_num):
+    urls_per_page = 50
+    skip_rows = (page_num - 1) * urls_per_page
+
+    # Fetch URLs from the MongoDB collection based on pagination
+    total_urls = collection.count_documents({})
+    total_pages = ceil(total_urls / urls_per_page)
+
+    # Get URLs for the current page
+    urls = collection.find().skip(skip_rows).limit(urls_per_page)
+
+    return render_template('index.html', urls=urls, current_page=page_num, total_pages=total_pages)
 
 @app.route('/delete', methods=['POST'])
 def delete_url():
@@ -46,6 +59,58 @@ def add_new_item():
 
     # Redirect to the homepage to update the table
     return redirect('/')
+
+# Add a route to handle the pagination request
+@app.route('/page/<int:page_num>', methods=['GET'])
+def pagination(page_num):
+    urls_per_page = 50
+    skip_rows = (page_num - 1) * urls_per_page
+
+    # Fetch URLs from the MongoDB collection based on pagination
+    total_urls = collection.count_documents({})
+    total_pages = ceil(total_urls / urls_per_page)
+
+    # Get URLs for the current page
+    urls = collection.find().skip(skip_rows).limit(urls_per_page)
+
+    return render_template('index.html', urls=urls, current_page=page_num, total_pages=total_pages)
+
+
+@app.route('/add_multiple', methods=['POST'])
+def add_multiple():
+    if 'csv_file' not in request.files:
+        return jsonify({'message': 'No CSV file provided.'}), 400
+
+    file = request.files['csv_file']
+
+    if file.filename == '':
+        return jsonify({'message': 'No file selected.'}), 400
+
+    if file and file.filename.endswith('.csv'):
+        # Read the CSV file using pandas
+        df = pd.read_csv(file)
+        items_added = 0
+
+        for index, row in df.iterrows():
+            sku = row.get('SKU')
+            link = row.get('Link')
+            price = 0
+            stock = 'Out'
+
+            new_item = {
+                'SKU': sku,
+                'Link': link,
+                'Price': price,
+                'Stock': stock
+            }
+
+            # Insert the new item into the collection
+            collection.insert_one(new_item)
+            items_added += 1
+
+        return jsonify({'message': f'{items_added} items added successfully.'})
+
+    return jsonify({'message': 'Invalid file format. Only CSV files are allowed.'}), 400
 
 @app.route('/parse_one', methods=['POST'])
 def parse_one():
