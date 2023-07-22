@@ -46,7 +46,7 @@ def parse_all_urls():
 if __name__ == '__main__':
     while True:
         now = datetime.datetime.now()
-        if now.hour == 16 and now.minute == 18:
+        if now.hour == 2 and now.minute == 7:
             parse_all_urls()
         time.sleep(60)  # Sleep for 1 minute before checking the time again
 

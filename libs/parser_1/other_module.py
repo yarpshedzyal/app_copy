@@ -5,7 +5,7 @@ from selenium.common.exceptions import NoSuchElementException
 import json
 from pymongo import MongoClient
 import datetime 
-
+import re
 
 # new options
 chrome_options = Options()
@@ -41,6 +41,15 @@ def format_price(string):                           # delets $ and /Each from pa
     formated_string = formated_string.replace("$", "")
     formated_string = formated_string.replace("/Each", "")
     formated_string = formated_string.replace("/Case", "")
+    formated_string = formated_string.replace("/Pack", "")
+    formated_string = formated_string.replace("/Bundle", "")
+    formated_string = formated_string.replace(",","")
+    number_match = re.search(r'\d+(\.\d+)?', formated_string)
+    if number_match:
+        number = float(number_match.group())
+    else:
+        number = None
+    formated_string = number
     return formated_string
 
 def parser_solo(url):
@@ -60,8 +69,16 @@ def parser_solo(url):
     except NoSuchElementException:
         stock_check_bool = True
     
+    try:
+        driver.find_element(By.CLASS_NAME, 'product-subhead')
+        item_exist = True
+    except NoSuchElementException:
+        item_exist = False
 
-    if stock_check_bool and multi_check_bool:
+    if not item_exist:
+        Price =  Price = (driver.find_element(By.CLASS_NAME, "price")) # in stock and bulk price ,,, copied because string cant have .text attribute
+        Stock = 'Out'
+    elif stock_check_bool and multi_check_bool:
         Price = (driver.find_element(By.XPATH, "//div[contains(@class,'pricing')]/table/tbody/tr/td")) # in stock and bulk price
     elif stock_check_bool and not multi_check_bool:
         Price = (driver.find_element(By.CLASS_NAME, "price")) # in stock no bulk price

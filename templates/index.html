@@ -51,7 +51,7 @@
 
     <form action="{{ url_for('parse_search') }}" method="post">
         <input type="text" name="keyword" placeholder="Search by SKU">
-        <button type="submit">Search</button>
+        <button type="submit" id="search-form">Search</button>
     </form>
 
     <form action="/addNewItem" method="POST">
@@ -65,6 +65,8 @@
         <button type="submit" onclick="addMultiple(event)">Add Multiple</button>
     </form>
 
+    <button onclick="downloadCSV()">Download CSV</button>
+
     <form onsubmit="parseAllURLs(event)">
         <button id="parseAllButton" type="submit">Parse All URLs</button>
     </form>
@@ -76,11 +78,10 @@
 
     <div>
         {% if current_page > 1 %}
-            <a href="{{ url_for('pagination', page_num=current_page-1) }}">Previous</a>
+        <a href="{{ url_for('pagination', page_num=current_page-1) }}">Previous</a>
         {% endif %}
-        {% if current_page < total_pages %}
-            <a href="{{ url_for('pagination', page_num=current_page+1) }}">Next</a>
-        {% endif %}
+        {% if current_page < total_pages %} <a href="{{ url_for('pagination', page_num=current_page+1) }}">Next</a>
+            {% endif %}
     </div>
 
     <table>
@@ -100,7 +101,7 @@
             <tr class="{% if url.Stock == 'In' %}in-stock{% elif url.Stock == 'Out' %}out-of-stock{% endif %}">
                 <td>{{ url._id }}</td>
                 <td>{{ url.SKU }}</td>
-                <td>{{ url.Link }}</td>
+                <td><a href="{{ url.Link }}" target="_blank">{{ url.Link }}</a></td>
                 <td>{{ url.Price }}</td>
                 <td>{{ url.Stock }}</td>
                 <td>
@@ -139,6 +140,12 @@
             console.log(data)
         });
 
+    </script>
+
+    <script>
+        function downloadCSV() {
+            window.location.href = '/download_csv';
+        }
     </script>
 
     <script>

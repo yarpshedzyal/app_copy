@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, send_file, make_response
 from flask_socketio import SocketIO, emit
 from pymongo import MongoClient, UpdateOne
 from bson.objectid import ObjectId
@@ -8,6 +8,8 @@ import traceback
 import time
 import pandas as pd
 from math import ceil
+import csv
+import io
 
 # import pymongo
 # import libraryparse
@@ -94,6 +96,30 @@ def pagination(page_num):
     return render_template('index.html', urls=urls, current_page=page_num, total_pages=total_pages)
 
 
+@app.route('/download_csv')
+def download_csv():
+    try:
+        # Get all items from the MongoDB collection
+        items = collection.find()
+
+        # Create the CSV file as a string
+        csv_string = "SKU,Link,Price,Stock\n"
+        for item in items:
+            csv_string += f"{item['SKU']},{item['Link']},{item['Price']},{item['Stock']}\n"
+
+        # Create the response with the CSV file
+        response = make_response(csv_string)
+        response.headers["Content-Disposition"] = "attachment; filename=database.csv"
+        response.headers["Content-type"] = "text/csv"
+
+        return response
+
+    except Exception as e:
+        traceback.print_exc()  # Print the exception traceback
+        return jsonify({'message': 'Failed to download CSV.'}), 500
+
+
+
 @app.route('/add_multiple', methods=['POST'])
 def add_multiple():
     if 'csv_file' not in request.files:
@@ -165,20 +191,19 @@ def parse_one():
     
 @app.route('/parse', methods=['POST'])
 def parse_urls():
-    try:
-        # Get all the URLs from MongoDB
-        urls = collection.find()
+    # Get all the URLs from MongoDB
+    urls = collection.find()
 
-        # Calculate the total number of URLs to parse
-        total_urls = count()
+    # Calculate the total number of URLs to parse
+    total_urls = count()
 
-        # Start parsing and emit progress updates
-        progress = 0
-        for index, url in enumerate(urls):
-            url_id = str(url['_id'])
-            link = url['Link']
-            parsed_urls = 0
+    # Start parsing and emit progress updates
+    parsed_urls = 0
+    for index, url in enumerate(urls):
+        url_id = str(url['_id'])
+        link = url['Link']
 
+        try:
             # Perform parsing using the parser_solo function
             parsed_data = parser_solo(link)
 
@@ -188,19 +213,29 @@ def parse_urls():
                 {'$set': {'Price': parsed_data[0], 'Stock': parsed_data[1]}}
             )
 
-            # Calculate progress and emit progress update
+            # Increment the parsed_urls counter
             parsed_urls += 1
-            progress = int((index + 1) / total_urls * 100)
-            socketio.emit('progress_update', {'progress': progress}, namespace='/')
-            socketio.sleep(0.5)
 
-        # Return a JSON response with a success message
-        return jsonify({'message': 'All URLs parsed successfully.'})
+        except Exception as e:
+            traceback.print_exc()  # Add this line to print the exception traceback
 
-    except Exception as e:
-        traceback.print_exc()  # Add this line to print the exception traceback
-        return jsonify({'message': 'Failed to parse URLs.'}), 500
+            # Handle the exception here, for example, set the "Stock" field to "Out"
+            collection.update_one(
+                {'_id': ObjectId(url_id)},
+                {'$set': {'Stock': 'Out'}}
+            )
 
+        # Calculate progress and emit progress update
+        progress = int((parsed_urls / total_urls) * 100)
+        socketio.emit('progress_update', {'progress': progress}, namespace='/')
+        socketio.sleep(0.5)
+
+    # Emit a message to indicate that all URLs are parsed successfully
+    socketio.emit('progress_update', {'message': 'All URLs parsed successfully.'}, namespace='/')
+
+    # Return a JSON response with a success message
+    return jsonify({'message': 'All URLs parsed successfully.'})
+  
 
 @socketio.on('connect')
 def handle_connect():
