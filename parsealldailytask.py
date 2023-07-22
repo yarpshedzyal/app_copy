@@ -50,4 +50,3 @@ if __name__ == '__main__':
             parse_all_urls()
         time.sleep(60)  # Sleep for 1 minute before checking the time again
 
-print(datetime.datetime.now())
