@@ -159,7 +159,7 @@ def add_multiple():
 @app.route('/parse_one', methods=['POST'])
 def parse_one():
     # Get the URL ID from the request
-    url_id = request.json.get('url_id')
+    url_id = request.json['url_id']
     
     # Retrieve the URL from MongoDB based on the ID
     client = MongoClient('mongodb+srv://user_yarpshe:Q1w2e3r4_0@cluster0.aktya2j.mongodb.net/')
@@ -250,6 +250,6 @@ def handle_custom_event(data):
 
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    socketio.run(app ,allow_unsafe_werkzeug=True , debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
     
     

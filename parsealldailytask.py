@@ -43,10 +43,4 @@ def parse_all_urls():
     print(f"Errors: {errors}")
 
 # Schedule the parsing task to run daily at 9 a.m. New York time
-if __name__ == '__main__':
-    while True:
-        now = datetime.datetime.now()
-        if now.hour == 2 and now.minute == 7:
-            parse_all_urls()
-        time.sleep(60)  # Sleep for 1 minute before checking the time again
 
