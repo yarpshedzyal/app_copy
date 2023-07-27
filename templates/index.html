@@ -47,7 +47,7 @@
 </head>
 
 <body>
-    <h1>Webstaurant Parser</h1>
+    <h1>Webstaurant Parser, last time parsed: {% if parsing_status.last_parsed_timestamp %} {{ parsing_status.last_parsed_timestamp }} {% else %} N/A {% endif %}</h1>
 
     <form action="{{ url_for('parse_search') }}" method="post">
         <input type="text" name="keyword" placeholder="Search by SKU">

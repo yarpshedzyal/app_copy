@@ -6,6 +6,7 @@ from libs.parser_1.other_module import parser_solo,count
 import os
 import traceback
 import time
+import datetime
 import pandas as pd
 from math import ceil
 import csv
@@ -21,10 +22,13 @@ is_parsing = False
 client = MongoClient('mongodb+srv://user_yarpshe:Q1w2e3r4_0@cluster0.aktya2j.mongodb.net/')
 db = client['test_1506']
 collection = db['test_small']
+parsing_history_collection = db['parsing_history_collection']
 
 @app.route('/', defaults={'page_num': 1})
 @app.route('/page/<int:page_num>', methods=['GET'])
 def index(page_num):
+    parsing_status = parsing_history_collection.find_one({'name': 'parsing_status'})
+
     urls_per_page = 50
     skip_rows = (page_num - 1) * urls_per_page
 
@@ -35,7 +39,7 @@ def index(page_num):
     # Get URLs for the current page
     urls = collection.find().skip(skip_rows).limit(urls_per_page)
 
-    return render_template('index.html', urls=urls, current_page=page_num, total_pages=total_pages)
+    return render_template('index.html', urls=urls, current_page=page_num, total_pages=total_pages, parsing_status=parsing_status)
 
 @app.route('/delete', methods=['POST'])
 def delete_url():
@@ -241,6 +245,13 @@ def parse_urls():
         socketio.sleep(0.5)
 
     is_parsing = False 
+
+    last_parsed_timestamp = datetime.datetime.utcnow()
+    parsing_history_collection.update_one(
+        {'name': 'parsing_status'},
+        {'$set': {'last_parsed_timestamp': last_parsed_timestamp}},
+        upsert=True
+    )
 
     # Emit a message to indicate that all URLs are parsed successfully
     socketio.emit('progress_update', {'message': 'All URLs parsed successfully.'}, namespace='/')
