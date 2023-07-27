@@ -16,10 +16,11 @@ import io
 app = Flask(__name__)
 socketio = SocketIO(app)
  
+is_parsing = False
 
 client = MongoClient('mongodb+srv://user_yarpshe:Q1w2e3r4_0@cluster0.aktya2j.mongodb.net/')
 db = client['test_1506']
-collection = db['test']
+collection = db['test_small']
 
 @app.route('/', defaults={'page_num': 1})
 @app.route('/page/<int:page_num>', methods=['GET'])
@@ -162,9 +163,9 @@ def parse_one():
     url_id = request.json['url_id']
     
     # Retrieve the URL from MongoDB based on the ID
-    client = MongoClient('mongodb+srv://user_yarpshe:Q1w2e3r4_0@cluster0.aktya2j.mongodb.net/')
-    db = client['test_1506']
-    collection = db['test']
+    # client = MongoClient('mongodb+srv://user_yarpshe:Q1w2e3r4_0@cluster0.aktya2j.mongodb.net/')
+    # db = client['test_1506']
+    # collection = db['test_small']
     
     # Find the document with the given ID
     document = collection.find_one({'_id': ObjectId(url_id)})
@@ -191,6 +192,12 @@ def parse_one():
     
 @app.route('/parse', methods=['POST'])
 def parse_urls():
+    global is_parsing
+
+    if is_parsing:
+        # Redirect to the main page with a message that parsing is ongoing
+        return jsonify({'message': 'Parsing in progress. Please w8'})
+
     # Get all the URLs from MongoDB
     urls = collection.find()
 
@@ -199,6 +206,9 @@ def parse_urls():
 
     # Start parsing and emit progress updates
     parsed_urls = 0
+
+    is_parsing = True
+
     for index, url in enumerate(urls):
         url_id = str(url['_id'])
         link = url['Link']
@@ -230,6 +240,8 @@ def parse_urls():
         socketio.emit('progress_update', {'progress': progress}, namespace='/')
         socketio.sleep(0.5)
 
+    is_parsing = False 
+
     # Emit a message to indicate that all URLs are parsed successfully
     socketio.emit('progress_update', {'message': 'All URLs parsed successfully.'}, namespace='/')
 
@@ -250,6 +262,6 @@ def handle_custom_event(data):
 
 
 if __name__ == '__main__':
-    socketio.run(app ,allow_unsafe_werkzeug=True , debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    socketio.run(app, debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
     
     
