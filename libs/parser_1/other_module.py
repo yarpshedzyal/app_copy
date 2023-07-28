@@ -74,6 +74,12 @@ def parser_solo(url):
             else:
                 return "Price element not found."
 
+        was_price_element = soup.select_one("p.was-price")
+        if was_price_element:
+            price = was_price_element.text.strip().replace("$", "").replace(",", "")
+            filtered_price = re.sub(r'[^\d.]', '', price)
+            price = clean_price_string(filtered_price)
+
         if minimum_buy:
             price = str(float(price) * minimum_buy)
 

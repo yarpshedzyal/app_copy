@@ -11,6 +11,7 @@ url_if_minimum_10 = "https://www.webstaurantstore.com/lancaster-table-seating-wh
 url_if_dropdown = "https://www.webstaurantstore.com/lavex-packaging-32-x-32-x-32-kraft-corrugated-rsc-shipping-box-bundle/442BOX32CUBE.html" #
 url_no_longer_avaible = "https://www.webstaurantstore.com/avantco-rw60-60-cup-sealed-electric-rice-warmer-120v-103w/177RW60.html"      #
 url_out_of_stock = "https://www.webstaurantstore.com/lavex-janitorial-13-qt-3-gallon-brown-rectangular-wastebasket-trash-can/475WC13BR.html" #
+url_discount = "https://www.webstaurantstore.com/lancaster-table-seating-red-dual-height-plastic-booster-seat/164BCDUALNRD.html"
 
 def parser_solo():
     url = url_non_exist
