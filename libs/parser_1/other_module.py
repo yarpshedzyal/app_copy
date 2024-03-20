@@ -40,6 +40,7 @@ def parser_solo(url):
         svg_element = soup.find("svg", {"class": "block mx-auto align-middle"})
         phrase_unavailable = "This Product is no longer available"
         phrase_out_of_stock = "Notify me when this product is back in stock"
+        phrase_works_with = 'Works With'
 
         if svg_element or phrase_unavailable in soup.get_text() or phrase_out_of_stock in soup.get_text():
             stock = "Out"
@@ -65,6 +66,15 @@ def parser_solo(url):
                 price = clean_price_string(filtered_td)
             else:
                 return "Table has no rows or data."
+        elif phrase_works_with in soup.get_text():
+            price_element = soup.select_one('span.price')
+            if price_element:
+                price = price_element.text.strip().replace("$", "").replace(",", "")
+                filtered_price = re.sub(r'[^\d.]', '', price)
+                price = clean_price_string(filtered_price)
+            else:
+                return "Price element not found."
+
         else:
             price_element = soup.select_one("p.price")
             if price_element:
