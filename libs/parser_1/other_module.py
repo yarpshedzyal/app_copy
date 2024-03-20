@@ -67,7 +67,7 @@ def parser_solo(url):
             else:
                 return "Table has no rows or data."
         elif phrase_works_with in soup.get_text():
-            price_element = soup.select('#priceBox > div.pricing > p > span')
+            price_element = soup.select_one('#priceBox > div.pricing > p > span')
             if price_element:
                 price = price_element.text.strip().replace("$", "").replace(",", "")
                 filtered_price = re.sub(r'[^\d.]', '', price)
