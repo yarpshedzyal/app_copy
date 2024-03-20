@@ -9,9 +9,9 @@ from bs4 import BeautifulSoup
 import re
 import datetime
 
-import requests
-from bs4 import BeautifulSoup
-import re
+# import requests
+# from bs4 import BeautifulSoup
+# import re
 
 def clean_price_string(price_str):
     parts = price_str.split(".", 1)
@@ -103,7 +103,7 @@ def parser_solo(url):
 # # options.add_argument("--window-size=1920,1200")
 # # options.binary_location = 
 
-# urls for test_small
+# urls for test
 # url = "https://www.webstaurantstore.com/lancaster-table-seating-french-bistro-black-outdoor-arm-chair/427CAFRBSBLK.html" # multi
 # url_1 = "https://www.webstaurantstore.com/spaceman-6235a-c-soft-serve-countertop-ice-cream-machine-with-air-pump-2-hoppers-and-3-dispensers-208-230v/7156235ACV.html" # solo 
 # nonstock_url = "https://www.webstaurantstore.com/regency-black-epoxy-5-shelf-angled-stationary-merchandising-rack-18-x-48-x-74/460EB1848SDS.html" # nonstock 
@@ -177,10 +177,10 @@ def parser_solo(url):
 def count():
     client = MongoClient('mongodb+srv://user_yarpshe:Q1w2e3r4_0@cluster0.aktya2j.mongodb.net/')
     db = client['test_1506']
-    collection = db['test_small']
+    collection = db['test']
     count = collection.count_documents({})
     return count
 
-
+print(parser_solo('https://www.webstaurantstore.com/backyard-pro-weekend-series-30-qt-turkey-fryer-kit-with-stainless-steel-stock-pot-and-accessories-55-000-btu/554BP16SSKIT.html'))
 
 

@@ -3,17 +3,13 @@ from flask_socketio import SocketIO, emit
 from pymongo import MongoClient, UpdateOne
 from bson.objectid import ObjectId
 from libs.parser_1.other_module import parser_solo,count
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 import os
 import traceback
-import time
-import datetime
 import pandas as pd
 from math import ceil
-import csv
-import io
-import schedule
-import pytz
+
+
 
 # import pymongo
 # import libraryparse
@@ -24,8 +20,9 @@ is_parsing = False
 
 client = MongoClient('mongodb+srv://user_yarpshe:Q1w2e3r4_0@cluster0.aktya2j.mongodb.net/')
 db = client['test_1506']
-collection = db['test_small']
+collection = db['test']
 parsing_history_collection = db['parsing_history_collection']
+
 
 @app.route('/', defaults={'page_num': 1})
 @app.route('/page/<int:page_num>', methods=['GET'])
@@ -52,6 +49,7 @@ def delete_url():
 
 @app.route('/parse_search', methods=['POST'])
 def parse_search():
+    parsing_status = parsing_history_collection.find_one({'name': 'parsing_status'})
     # Get the search keyword from the form
     keyword = request.form.get('keyword')
 
@@ -65,7 +63,7 @@ def parse_search():
     total_urls = count()  # Count the total number of URLs
     total_pages = (total_urls + items_per_page - 1) // items_per_page
 
-    return render_template('index.html', urls=urls, current_page=1, total_pages=total_pages)  # Pass total_pages
+    return render_template('index.html', urls=urls, current_page=1, total_pages=total_pages, parsing_status=parsing_status)  # Pass total_pages
 
 
 @app.route('/addNewItem', methods=['POST'])
@@ -172,7 +170,7 @@ def parse_one():
     # Retrieve the URL from MongoDB based on the ID
     # client = MongoClient('mongodb+srv://user_yarpshe:Q1w2e3r4_0@cluster0.aktya2j.mongodb.net/')
     # db = client['test_1506']
-    # collection = db['test_small']
+    # collection = db['test']
     
     # Find the document with the given ID
     document = collection.find_one({'_id': ObjectId(url_id)})
@@ -249,7 +247,7 @@ def parse_urls():
 
     is_parsing = False 
 
-    last_parsed_timestamp = datetime.datetime.utcnow()
+    last_parsed_timestamp = datetime.now()
     parsing_history_collection.update_one(
         {'name': 'parsing_status'},
         {'$set': {'last_parsed_timestamp': last_parsed_timestamp}},
@@ -274,9 +272,29 @@ def handle_custom_event(data):
     # Send a response back to the client
     emit('response_event', {'message': 'Data received successfully'})
 
+# gavnina block
+
+# def run_parse_urls():
+#     while True:
+#         # Get the current time in New York
+#         time_now = datetime.now()
+#         # Check if it's 8 am in New York
+#         if time_now.hour == 13 and time_now.minute == 34:
+#             # Run the parse_urls function
+#             parse_urls()
+
+#         # Sleep for 1 minute before checking again
+#         time.sleep(45)
+# schedule.every().day.at("13:34").do(run_parse_urls)
+# # end of gavnina block
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    socketio.run(app,allow_unsafe_werkzeug=True , debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
+
+
+
+
 
     
     
