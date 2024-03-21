@@ -41,6 +41,7 @@ def parser_solo(url):
         phrase_unavailable = "This Product is no longer available"
         phrase_out_of_stock = "Notify me when this product is back in stock"
         phrase_works_with = 'Works With'
+        product_from_line = 'Other Products from this Line'
 
         if svg_element or phrase_unavailable in soup.get_text() or phrase_out_of_stock in soup.get_text():
             stock = "Out"
@@ -66,17 +67,30 @@ def parser_solo(url):
                 price = clean_price_string(filtered_td)
             else:
                 return "Table has no rows or data."
-        elif phrase_works_with in soup.get_text():
-            price_element = soup.select_one('#priceBox > div.pricing > p > span')
+        # elif phrase_works_with in soup.get_text():
+        #     price_element = soup.select_one('#priceBox > div.pricing > p > span')
+        #     if price_element:
+        #         price = price_element.text.strip().replace("$", "").replace(",", "")
+        #         filtered_price = re.sub(r'[^\d.]', '', price)
+        #         price = clean_price_string(filtered_price)
+        #     else:
+        #         return "Price element not found."
+            
+        # elif product_from_line in soup.get_text():
+        #     price_element = soup.select
+        #     pass
+
+        else:
+            price_element = soup.select_one("p.price")
             if price_element:
                 price = price_element.text.strip().replace("$", "").replace(",", "")
                 filtered_price = re.sub(r'[^\d.]', '', price)
                 price = clean_price_string(filtered_price)
             else:
                 return "Price element not found."
-
-        else:
-            price_element = soup.select_one("p.price")
+            
+        if phrase_works_with in soup.get_text():
+            price_element = soup.select_one('#priceBox > div.pricing > p > span')
             if price_element:
                 price = price_element.text.strip().replace("$", "").replace(",", "")
                 filtered_price = re.sub(r'[^\d.]', '', price)
@@ -95,94 +109,6 @@ def parser_solo(url):
 
     return [price, stock]
 
-# # new options
-# chrome_options = Options()
-# chrome_options.add_argument('--no-sandbox')
-# chrome_options.add_argument('--headless')
-# chrome_options.add_argument("--disable-setuid-sandbox")
-# # other options
-# chrome_options.add_argument("--disable-extensions")
-# chrome_options.add_argument("--disable-gpu")
-# chrome_options.add_argument('--ignore-certificate-errors')
-# # chrome_options.headless = True
-
-
-# options = Options()
-# options.add_argument("--headless")
-# # options.headless = True
-# # options.add_argument("--window-size=1920,1200")
-# # options.binary_location = 
-
-# urls for test
-# url = "https://www.webstaurantstore.com/lancaster-table-seating-french-bistro-black-outdoor-arm-chair/427CAFRBSBLK.html" # multi
-# url_1 = "https://www.webstaurantstore.com/spaceman-6235a-c-soft-serve-countertop-ice-cream-machine-with-air-pump-2-hoppers-and-3-dispensers-208-230v/7156235ACV.html" # solo 
-# nonstock_url = "https://www.webstaurantstore.com/regency-black-epoxy-5-shelf-angled-stationary-merchandising-rack-18-x-48-x-74/460EB1848SDS.html" # nonstock 
-
-
-# driver = webdriver.Chrome(options=chrome_options)
-
-# driver = webdriver.Chrome(options=options, executable_path="chromedriver_linux64\chromedriver")
-
-
-# def format_price(string):                           # delets $ and /Each from parced price
-#     formated_string = str(string)
-#     formated_string = formated_string.replace("$", "")
-#     formated_string = formated_string.replace("/Each", "")
-#     formated_string = formated_string.replace("/Case", "")
-#     formated_string = formated_string.replace("/Pack", "")
-#     formated_string = formated_string.replace("/Bundle", "")
-#     formated_string = formated_string.replace(",","")
-#     number_match = re.search(r'\d+(\.\d+)?', formated_string)
-#     if number_match:
-#         number = float(number_match.group())
-#     else:
-#         number = None
-#     formated_string = number
-#     return formated_string
-
-# def parser_solo(url):
-#     Price = ''
-#     Stock = 'In'
-#     driver.get(url)
-
-#     try:
-#         driver.find_element(By.XPATH, "//div[contains(@class, 'pricing')]/table/tbody/tr/td")
-#         multi_check_bool = True
-#     except NoSuchElementException:
-#         multi_check_bool = False
-
-#     try:
-#         driver.find_element(By.ID, "unavailableContainer")
-#         stock_check_bool = False
-#     except NoSuchElementException:
-#         stock_check_bool = True
-    
-#     try:
-#         driver.find_element(By.CLASS_NAME, 'product-subhead')
-#         item_exist = True
-#     except NoSuchElementException:
-#         item_exist = False
-
-#     if not item_exist:
-#         Price =  Price = (driver.find_element(By.CLASS_NAME, "price")) # in stock and bulk price ,,, copied because string cant have .text attribute
-#         Stock = 'Out'
-#     elif stock_check_bool and multi_check_bool:
-#         Price = (driver.find_element(By.XPATH, "//div[contains(@class,'pricing')]/table/tbody/tr/td")) # in stock and bulk price
-#     elif stock_check_bool and not multi_check_bool:
-#         Price = (driver.find_element(By.CLASS_NAME, "price")) # in stock no bulk price
-#     elif not stock_check_bool and multi_check_bool:
-#         Price = (driver.find_element(By.XPATH, "//div[contains(@class,'pricing')]/table/tbody/tr/td")) # out of stock and bulk price
-#         Stock = 'Out'
-#     elif not stock_check_bool and not multi_check_bool:
-#         Price = (driver.find_element(By.CLASS_NAME, "price")) # out of stock no bulk price
-#         Stock = 'Out'
-#     driver.quit()
-#     price_text = Price.text
-    
-#     return [format_price(price_text), Stock]
-
-
-
 
 def count():
     client = MongoClient('mongodb+srv://user_yarpshe:Q1w2e3r4_0@cluster0.aktya2j.mongodb.net/')
@@ -192,5 +118,7 @@ def count():
     return count
 
 print(parser_solo('https://www.webstaurantstore.com/backyard-pro-weekend-series-30-qt-turkey-fryer-kit-with-stainless-steel-stock-pot-and-accessories-55-000-btu/554BP16SSKIT.html'))
+print(parser_solo('https://www.webstaurantstore.com/regency-48-x-20-x-8-aluminum-dunnage-rack-1300-lb-capacity/600DUN2048.html'), 'other products from this line')
+print(parser_solo('https://www.webstaurantstore.com/avantco-cpo16ts-stainless-steel-countertop-pizza-snack-oven-with-adjustable-thermostatic-control-120v-1700w/177CPO16TS.html'), 'no price')
 
 
