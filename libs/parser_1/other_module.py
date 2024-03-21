@@ -42,6 +42,7 @@ def parser_solo(url):
         phrase_out_of_stock = "Notify me when this product is back in stock"
         phrase_works_with = 'Works With'
         product_from_line = 'Other Products from this Line'
+        selector_for_sale = '#priceBox > div.pricing > p.sale-price > span.text-black.font-bold.bg-yellow-400.rounded-sm.antialiased.mr-1.mt-0\.5.px-3\/4.py-0\.5.text-sm'
 
         if svg_element or phrase_unavailable in soup.get_text() or phrase_out_of_stock in soup.get_text():
             stock = "Out"
@@ -97,6 +98,16 @@ def parser_solo(url):
                 price = clean_price_string(filtered_price)
             else:
                 return "Price element not found."
+        
+        sale_element = soup.select_one('#priceBox > div.pricing > p.sale-price > span.text-black.font-bold.bg-yellow-400.rounded-sm.antialiased.mr-1.mt-0\.5.px-3\/4.py-0\.5.text-sm')
+        if sale_element:
+            price_element = soup.select_one('#priceBox > div.pricing > p.sale-price > span:nth-child(2)')
+            if price_element:
+                price = price_element.text.strip().replace("$", "").replace(",", "")
+                filtered_price = re.sub(r'[^\d.]', '', price)
+                price = clean_price_string(filtered_price)
+            else:
+                return 'Price element not found'
             
         # if product_from_line in soup.get_text():
         #     price_element = soup.select_one('#priceBox > div.pricing > p > span')
