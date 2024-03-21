@@ -78,7 +78,7 @@ def parser_solo(url):
             else:
                 return "Price element not found."
             
-        if phrase_works_with in soup.get_text():
+        if phrase_works_with in soup.get_text() and not table_element:
             price_element = soup.select_one('#priceBox > div.pricing > p > span')
             if price_element:
                 price = price_element.text.strip().replace("$", "").replace(",", "")
