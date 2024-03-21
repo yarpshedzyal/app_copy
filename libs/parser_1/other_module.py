@@ -68,18 +68,6 @@ def parser_solo(url):
                 price = clean_price_string(filtered_td)
             else:
                 return "Table has no rows or data."
-        # elif phrase_works_with in soup.get_text():
-        #     price_element = soup.select_one('#priceBox > div.pricing > p > span')
-        #     if price_element:
-        #         price = price_element.text.strip().replace("$", "").replace(",", "")
-        #         filtered_price = re.sub(r'[^\d.]', '', price)
-        #         price = clean_price_string(filtered_price)
-        #     else:
-        #         return "Price element not found."
-            
-        # elif product_from_line in soup.get_text():
-        #     price_element = soup.select
-        #     pass
 
         else:
             price_element = soup.select_one("#priceBox > div.pricing > p > span")
