@@ -100,7 +100,7 @@ def parser_solo(url):
                 return "Price element not found."
         
         sale_element = soup.select_one('#priceBox > div.pricing > p.sale-price > span.text-black.font-bold.bg-yellow-400.rounded-sm.antialiased.mr-1.mt-0\.5.px-3\/4.py-0\.5.text-sm')
-        if sale_element and not table_element:
+        if sale_element and price == '0':
             price_element = soup.select_one('#priceBox > div.pricing > p.sale-price > span:nth-child(2)')
             if price_element:
                 price = price_element.text.strip().replace("$", "").replace(",", "")
@@ -131,8 +131,8 @@ def count():
     count = collection.count_documents({})
     return count
 
-# print(parser_solo('https://www.webstaurantstore.com/backyard-pro-weekend-series-30-qt-turkey-fryer-kit-with-stainless-steel-stock-pot-and-accessories-55-000-btu/554BP16SSKIT.html'))
-# print(parser_solo('https://www.webstaurantstore.com/regency-48-x-20-x-8-aluminum-dunnage-rack-1300-lb-capacity/600DUN2048.html'), 'other products from this line')
-# print(parser_solo('https://www.webstaurantstore.com/avantco-cpo16ts-stainless-steel-countertop-pizza-snack-oven-with-adjustable-thermostatic-control-120v-1700w/177CPO16TS.html'), 'no price')
-# print(parser_solo('https://www.webstaurantstore.com/choice-32-x-16-x-38-black-3-shelf-utility-bus-cart/109CARTBUSBK.html'), 'multi eror ulr')
+print(parser_solo('https://www.webstaurantstore.com/backyard-pro-weekend-series-30-qt-turkey-fryer-kit-with-stainless-steel-stock-pot-and-accessories-55-000-btu/554BP16SSKIT.html'))
+print(parser_solo('https://www.webstaurantstore.com/regency-48-x-20-x-8-aluminum-dunnage-rack-1300-lb-capacity/600DUN2048.html'), 'other products from this line')
+print(parser_solo('https://www.webstaurantstore.com/avantco-cpo16ts-stainless-steel-countertop-pizza-snack-oven-with-adjustable-thermostatic-control-120v-1700w/177CPO16TS.html'), 'no price')
+print(parser_solo('https://www.webstaurantstore.com/choice-32-x-16-x-38-black-3-shelf-utility-bus-cart/109CARTBUSBK.html'), 'multi eror ulr')
 
