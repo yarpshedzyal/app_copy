@@ -134,5 +134,5 @@ def count():
 print(parser_solo('https://www.webstaurantstore.com/backyard-pro-weekend-series-30-qt-turkey-fryer-kit-with-stainless-steel-stock-pot-and-accessories-55-000-btu/554BP16SSKIT.html'))
 print(parser_solo('https://www.webstaurantstore.com/regency-48-x-20-x-8-aluminum-dunnage-rack-1300-lb-capacity/600DUN2048.html'), 'other products from this line')
 print(parser_solo('https://www.webstaurantstore.com/avantco-cpo16ts-stainless-steel-countertop-pizza-snack-oven-with-adjustable-thermostatic-control-120v-1700w/177CPO16TS.html'), 'no price')
-
+print(parser_solo('https://www.webstaurantstore.com/choice-32-x-16-x-38-black-3-shelf-utility-bus-cart/109CARTBUSBK.html', 'multi sale error'))
 
