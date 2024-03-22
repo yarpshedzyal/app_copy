@@ -100,7 +100,7 @@ def parser_solo(url):
         # if product_from_line in soup.get_text():
         #     price_element = soup.select_one('#priceBox > div.pricing > p > span')
 
-        p_r_error_text = 'Contact us or login for pricing'
+        p_r_error_text = 'Contact us or '
         if p_r_error_text in soup.get_text():
             price_element = soup.select_one('#priceBox > div.pricing > div > p.leading-none.mb-0 > span')
             if price_element:
