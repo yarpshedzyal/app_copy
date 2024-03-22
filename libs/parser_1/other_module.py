@@ -100,6 +100,16 @@ def parser_solo(url):
         # if product_from_line in soup.get_text():
         #     price_element = soup.select_one('#priceBox > div.pricing > p > span')
 
+        p_r_error_element = soup.select_one('#priceBox > div.pricing > div > p.leading-none.mb-0 > span')
+        if p_r_error_element:
+            price_element = soup.select_one('#priceBox > div.pricing > div > p.leading-none.mb-0 > span')
+            if price_element:
+                price = price_element.text.strip().replace("$", "").replace(",", "")
+                filtered_price = re.sub(r'[^\d.]', '', price)
+                price = clean_price_string(filtered_price)
+            else:
+                return 'Price element not found'
+     
         was_price_element = soup.select_one("p.was-price")
         if was_price_element:
             price = was_price_element.text.strip().replace("$", "").replace(",", "")
