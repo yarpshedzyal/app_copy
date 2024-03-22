@@ -94,8 +94,8 @@ def parser_solo(url):
                 price = price_element.text.strip().replace("$", "").replace(",", "")
                 filtered_price = re.sub(r'[^\d.]', '', price)
                 price = clean_price_string(filtered_price)
-            else:
-                return 'Price element not found'
+            # else:
+            #     return 'Price element not found'
             
         # if product_from_line in soup.get_text():
         #     price_element = soup.select_one('#priceBox > div.pricing > p > span')
