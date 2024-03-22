@@ -102,7 +102,7 @@ def parser_solo(url):
 
         p_r_error_text = 'Contact us or '
         if p_r_error_text in soup.get_text():
-            price_element = soup.select_one('#priceBox > div.pricing > div > p.leading-none.mb-0 > span')
+            price_element = soup.select_one('#priceBox > div.pricing > div > p.leading-none.mb-0')
             if price_element:
                 price = price_element.text.strip().replace("$", "").replace(",", "")
                 filtered_price = re.sub(r'[^\d.]', '', price)
