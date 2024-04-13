@@ -46,9 +46,10 @@ def parser_solo(url):
 
         if svg_element or phrase_unavailable in soup.get_text() or phrase_out_of_stock in soup.get_text():
             stock = "Out"
+            
         else:
             stock = "In"
-
+            return [price, stock]
         min_must_text_element = soup.find("p", {"class": "min-must-text"})
         minimum_buy = get_minimum_buy_number(soup)
 
