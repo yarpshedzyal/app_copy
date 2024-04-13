@@ -46,10 +46,9 @@ def parser_solo(url):
 
         if svg_element or phrase_unavailable in soup.get_text() or phrase_out_of_stock in soup.get_text():
             stock = "Out"
-            
         else:
             stock = "In"
-            return [price, stock]
+
         min_must_text_element = soup.find("p", {"class": "min-must-text"})
         minimum_buy = get_minimum_buy_number(soup)
 
@@ -136,3 +135,4 @@ print(parser_solo('https://www.webstaurantstore.com/avantco-cpo16ts-stainless-st
 print(parser_solo('https://www.webstaurantstore.com/choice-32-x-16-x-38-black-3-shelf-utility-bus-cart/109CARTBUSBK.html'), 'multi eror ulr')
 print(parser_solo('https://www.webstaurantstore.com/national-public-seating-tfxs48482432c02-transfix-48-x-48-adjustable-portable-stage-with-gray-carpet-24-to-32-height/386TF4824C02.html'), 'p-r error')
 print(parser_solo('https://www.webstaurantstore.com/avantco-chsme24a-24-countertop-electric-cheese-melter-120v-1600w/177CHSME24A.html'), 'end-of-sell')
+print(parser_solo('https://www.webstaurantstore.com/avantco-chsme23m-23-electric-countertop-cheese-melter-208-240v-1800-2400w/177CHSME23M.html'), 'end-of-sell')
