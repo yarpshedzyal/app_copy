@@ -137,3 +137,4 @@ print(parser_solo('https://www.webstaurantstore.com/national-public-seating-tfxs
 print(parser_solo('https://www.webstaurantstore.com/avantco-chsme24a-24-countertop-electric-cheese-melter-120v-1600w/177CHSME24A.html'), 'end-of-sell')
 print(parser_solo('https://www.webstaurantstore.com/avantco-chsme23m-23-electric-countertop-cheese-melter-208-240v-1800-2400w/177CHSME23M.html'), 'end-of-sell')
 print(parser_solo('https://www.webstaurantstore.com/avantco-cnvyov10a-countertop-conveyor-oven-with-10-1-2-belt-120v-1700w/177CNVYOV10A.html'), 'end-of-sell')
+print(parser_solo('https://www.webstaurantstore.com/avantco-cnvyov10a-countertop-conveyor-oven-with-10-1-2-belt-120v-1700w/177CNVYOV10A.html'), 'end-of-sell')
