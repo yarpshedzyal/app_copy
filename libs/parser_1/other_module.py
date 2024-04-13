@@ -44,7 +44,7 @@ def parser_solo(url):
         product_from_line = 'Other Products from this Line'
         selector_for_sale = '#priceBox > div.pricing > p.sale-price > span.text-black.font-bold.bg-yellow-400.rounded-sm.antialiased.mr-1.mt-0\.5.px-3\/4.py-0\.5.text-sm'
 
-        if svg_element or phrase_unavailable in soup.get_text() or phrase_out_of_stock in soup.get_text():
+        if svg_element or (phrase_unavailable in soup.get_text()) or (phrase_out_of_stock in soup.get_text()):
             stock = "Out"
         else:
             stock = "In"
