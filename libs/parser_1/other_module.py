@@ -117,6 +117,12 @@ def parser_solo(url):
             filtered_price = re.sub(r'[^\d.]', '', price)
             price = clean_price_string(filtered_price)
 
+        buybox_new_14_05_2024 = soup.select_one('#priceBox > div.pricing > div.plus-member.plus-member-override.plus-member--plus > div > div.plus-member__text.plus-member__price > p > span')
+        if buybox_new_14_05_2024:
+            price = buybox_new_14_05_2024.text.strip().replace('$', '').replace(',', '')
+            filtered_price = re.sub(r'[^\d.]', '', price)
+            price = clean_price_string(filtered_price)
+            
         if minimum_buy:
             price = str(float(price) * minimum_buy)
         if 'search' in url:
