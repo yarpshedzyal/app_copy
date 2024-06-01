@@ -72,7 +72,7 @@ def parser_solo(url):
 
         else:
             price_element = soup.select_one("#priceBox > div.pricing > p > span")
-            if price_element:
+            if price_element and not table_element:
                 price = price_element.text.strip().replace("$", "").replace(",", "")
                 filtered_price = re.sub(r'[^\d.]', '', price)
                 price = clean_price_string(filtered_price)
