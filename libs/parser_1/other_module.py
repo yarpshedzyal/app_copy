@@ -112,13 +112,13 @@ def parser_solo(url):
             #     return 'Price element not found'
      
         was_price_element = soup.select_one("p.was-price")
-        if was_price_element:
+        if was_price_element and not table_element:
             price = was_price_element.text.strip().replace("$", "").replace(",", "")
             filtered_price = re.sub(r'[^\d.]', '', price)
             price = clean_price_string(filtered_price)
 
         buybox_new_14_05_2024 = soup.select_one('#priceBox > div.pricing > div.plus-member.plus-member-override.plus-member--plus > div > div.plus-member__text.plus-member__price > p > span')
-        if buybox_new_14_05_2024:
+        if buybox_new_14_05_2024 and not table_element:
             price = buybox_new_14_05_2024.text.strip().replace('$', '').replace(',', '')
             filtered_price = re.sub(r'[^\d.]', '', price)
             price = clean_price_string(filtered_price)
