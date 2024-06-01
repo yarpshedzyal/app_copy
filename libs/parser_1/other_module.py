@@ -1,9 +1,17 @@
+# from selenium import webdriver
+# from selenium.webdriver.chrome.options import Options 
+# from selenium.webdriver.common.by import By
+# from selenium.common.exceptions import NoSuchElementException
 import json
 from pymongo import MongoClient
 import requests
 from bs4 import BeautifulSoup
 import re
 import datetime
+
+# import requests
+# from bs4 import BeautifulSoup
+# import re
 
 def clean_price_string(price_str):
     parts = price_str.split(".", 1)
@@ -35,7 +43,7 @@ def parser_solo(url):
         phrase_out_of_stock = "Notify me when this product is back in stock"
         phrase_works_with = 'Works With'
         product_from_line = 'Other Products from this Line'
-        p_r_error_text = 'Contact us or '
+        selector_for_sale = '#priceBox > div.pricing > p.sale-price > span.text-black.font-bold.bg-yellow-400.rounded-sm.antialiased.mr-1.mt-0\.5.px-3\/4.py-0\.5.text-sm'
 
         if svg_element or (phrase_unavailable in soup.get_text()) or (phrase_out_of_stock in soup.get_text()) or (phrase_unavailable_2 in soup.get_text()):
             stock = "Out"
@@ -45,28 +53,6 @@ def parser_solo(url):
         min_must_text_element = soup.find("p", {"class": "min-must-text"})
         minimum_buy = get_minimum_buy_number(soup)
 
-        # Prioritize finding the price in the sale-price span, if available
-        sale_element = soup.select_one('#priceBox > div.pricing > p.sale-price > span.text-black.font-bold.bg-yellow-400.rounded-sm.antialiased.mr-1.mt-0\\.5.px-3\\/4.py-0\\.5.text-sm')
-        if sale_element:
-            price_element = soup.select_one('#priceBox > div.pricing > p.sale-price > span:nth-child(2)')
-            if price_element:
-                price = price_element.text.strip().replace("$", "").replace(",", "")
-                filtered_price = re.sub(r'[^\d.]', '', price)
-                price = clean_price_string(filtered_price)
-            else:
-                price = sale_element.text.strip().replace("$", "").replace(",", "")
-                filtered_price = re.sub(r'[^\d.]', '', price)
-                price = clean_price_string(filtered_price)
-
-        # Fallback to regular price element if sale-price is not found
-        if price == "0":
-            price_element = soup.select_one("#priceBox > div.pricing > p > span")
-            if price_element:
-                price = price_element.text.strip().replace("$", "").replace(",", "")
-                filtered_price = re.sub(r'[^\d.]', '', price)
-                price = clean_price_string(filtered_price)
-
-        # Handle table prices if they exist
         table_element = soup.select_one("table.table.table-bordered")
         if table_element:
             rows = table_element.select("tbody tr")
@@ -81,30 +67,58 @@ def parser_solo(url):
             if last_th and last_td:
                 filtered_td = re.sub(r'[^\d.]', '', last_td)
                 price = clean_price_string(filtered_td)
+            else:
+                return "Table has no rows or data."
 
-        # Additional checks
-        if phrase_works_with in soup.get_text() and price == "0":
+        else:
+            price_element = soup.select_one("#priceBox > div.pricing > p > span")
+            if price_element and not table_element:
+                price = price_element.text.strip().replace("$", "").replace(",", "")
+                filtered_price = re.sub(r'[^\d.]', '', price)
+                price = clean_price_string(filtered_price)
+            # else:
+            #     return "Price element not found."
+            
+        if phrase_works_with in soup.get_text() and not table_element:
             price_element = soup.select_one('#priceBox > div.pricing > p > span')
             if price_element:
                 price = price_element.text.strip().replace("$", "").replace(",", "")
                 filtered_price = re.sub(r'[^\d.]', '', price)
                 price = clean_price_string(filtered_price)
+            # else:
+            #     return "Price element not found."
+        
+        sale_element = soup.select_one('#priceBox > div.pricing > p.sale-price > span.text-black.font-bold.bg-yellow-400.rounded-sm.antialiased.mr-1.mt-0\.5.px-3\/4.py-0\.5.text-sm')
+        if sale_element and not table_element:
+            price_element = soup.select_one('#priceBox > div.pricing > p.sale-price > span:nth-child(2)')
+            if price_element:
+                price = price_element.text.strip().replace("$", "").replace(",", "")
+                filtered_price = re.sub(r'[^\d.]', '', price)
+                price = clean_price_string(filtered_price)
+            # else:
+            #     return 'Price element not found'
+            
+        # if product_from_line in soup.get_text():
+        #     price_element = soup.select_one('#priceBox > div.pricing > p > span')
 
-        if p_r_error_text in soup.get_text() and price == "0":
+        p_r_error_text = 'Contact us or '
+        if p_r_error_text in soup.get_text() and not table_element:
             price_element = soup.select_one('#priceBox > div.pricing > div > p.leading-none.mb-0')
             if price_element:
                 price = price_element.text.strip().replace("$", "").replace(",", "")
                 filtered_price = re.sub(r'[^\d.]', '', price)
                 price = clean_price_string(filtered_price)
+            # else:
+            #     return 'Price element not found'
      
         was_price_element = soup.select_one("p.was-price")
-        if was_price_element and price == "0":
+        if was_price_element and not table_element:
             price = was_price_element.text.strip().replace("$", "").replace(",", "")
             filtered_price = re.sub(r'[^\d.]', '', price)
             price = clean_price_string(filtered_price)
 
         buybox_new_14_05_2024 = soup.select_one('#priceBox > div.pricing > div.plus-member.plus-member-override.plus-member--plus > div > div.plus-member__text.plus-member__price > p > span')
-        if buybox_new_14_05_2024 and price == "0":
+        if buybox_new_14_05_2024 and not table_element:
             price = buybox_new_14_05_2024.text.strip().replace('$', '').replace(',', '')
             filtered_price = re.sub(r'[^\d.]', '', price)
             price = clean_price_string(filtered_price)
@@ -114,6 +128,7 @@ def parser_solo(url):
         if 'search' in url:
             stock = 'Out'
     return [price, stock]
+
 
 def count():
     client = MongoClient('mongodb+srv://user_yarpshe:Q1w2e3r4_0@cluster0.aktya2j.mongodb.net/')
