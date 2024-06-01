@@ -123,6 +123,13 @@ def parser_solo(url):
             filtered_price = re.sub(r'[^\d.]', '', price)
             price = clean_price_string(filtered_price)
 
+        bug_01_06_2024 = soup.select_one('#priceBox > div.pricing > table > tbody > tr > td')
+        if bug_01_06_2024:
+            price_el = soup.select_one('#priceBox > div.pricing > p > span')
+            price = price_el.text.strip().replace('$', '').replace(',','')
+            filtered_price = re.sub(r'[^\d.]', '', price)
+            price = clean_price_string(filtered_price)
+
         if minimum_buy:
             price = str(float(price) * minimum_buy)
         if 'search' in url:
